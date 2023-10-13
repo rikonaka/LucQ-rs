@@ -71,6 +71,8 @@ x | id[9], user[riko], add_time[2023-10-14 15:49:01], used_time[0:0:0], command[
 - `o` means command execute finished
 - `r` means command still running
 - `x` means command not started
+- `e` means command quit with error
+
 
 ### Remove command from queue
 

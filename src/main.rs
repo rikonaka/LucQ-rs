@@ -178,6 +178,8 @@ fn main() -> Result<()> {
                     "x"
                 } else if r.status == 1 {
                     "o"
+                } else if r.status == 2 {
+                    "e"
                 } else {
                     "r"
                 };
@@ -208,12 +210,14 @@ fn main() -> Result<()> {
                 db.update_command_running(r.id)?;
                 let start_time = Utc::now().timestamp();
                 match executor(&r.command) {
-                    Ok(_) => (),
-                    Err(e) => println!("{}", e),
+                    Ok(_) => db.update_command_finish(r.id)?,
+                    Err(e) => {
+                        println!("{}", e);
+                        db.update_command_error(r.id)?;
+                    }
                 }
                 let end_time = Utc::now().timestamp();
                 db.update_command_used_time(r.id, end_time - start_time)?;
-                db.update_command_finish(r.id)?;
             }
         }
     }

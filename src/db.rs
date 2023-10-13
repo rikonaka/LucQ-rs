@@ -119,6 +119,11 @@ impl Database {
         self.conn.execute(&stmt, ())?;
         Ok(())
     }
+    pub fn update_command_error(&self, id: i32) -> Result<()> {
+        let stmt = format!("UPDATE commands SET status=2 WHERE id={}", id);
+        self.conn.execute(&stmt, ())?;
+        Ok(())
+    }
     pub fn update_command_used_time(&self, id: i32, used_time: i64) -> Result<()> {
         let stmt = format!(
             "UPDATE commands SET used_time={} WHERE id={}",
