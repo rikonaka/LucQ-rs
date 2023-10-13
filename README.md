@@ -55,16 +55,15 @@ lucq --list
 
 ```bash
 S | Jobs
-o | id[1], user[hero], add_time[2023-10-14 00:41:21 +08:00], used_time[0:0:10], command[test.py]
-o | id[2], user[hero], add_time[2023-10-14 00:41:22 +08:00], used_time[0:0:10], command[test.py]
-o | id[3], user[hero], add_time[2023-10-14 00:41:22 +08:00], used_time[0:0:10], command[test.py]
-o | id[4], user[hero], add_time[2023-10-14 00:46:45 +08:00], used_time[0:0:10], command[test.py -a 1]
-o | id[5], user[hero], add_time[2023-10-14 00:47:29 +08:00], used_time[0:0:10], command[test.py -a 1]
-o | id[6], user[hero], add_time[2023-10-14 00:47:35 +08:00], used_time[0:0:10], command[test.py -a 1]
-o | id[7], user[hero], add_time[2023-10-14 00:47:36 +08:00], used_time[0:0:10], command[test.py -a 1]
-o | id[8], user[hero], add_time[2023-10-14 00:48:48 +08:00], used_time[0:0:10], command[test.py -a 1]
-o | id[9], user[hero], add_time[2023-10-14 00:49:01 +08:00], used_time[0:0:10], command[test.py -a 1]
-o | id[10], user[hero], add_time[2023-10-14 00:49:44 +08:00], used_time[0:0:10], command[test.py -a 1]
+o | id[1], user[riko], add_time[2023-10-14 00:41:21 +08:00], used_time[0:0:10], command[test.py]
+o | id[2], user[riko], add_time[2023-10-14 00:41:22 +08:00], used_time[0:0:10], command[test.py]
+o | id[3], user[riko], add_time[2023-10-14 00:41:22 +08:00], used_time[0:0:10], command[test.py]
+o | id[4], user[riko], add_time[2023-10-14 00:46:45 +08:00], used_time[0:0:10], command[test.py -a 1]
+o | id[5], user[riko], add_time[2023-10-14 00:47:29 +08:00], used_time[0:0:10], command[test.py -a 1]
+o | id[6], user[riko], add_time[2023-10-14 00:47:35 +08:00], used_time[0:0:10], command[test.py -a 1]
+o | id[7], user[riko], add_time[2023-10-14 00:47:36 +08:00], used_time[0:0:10], command[test.py -a 1]
+o | id[8], user[riko], add_time[2023-10-14 00:48:48 +08:00], used_time[0:0:10], command[test.py -a 1]
+o | id[9], user[riko], add_time[2023-10-14 00:49:01 +08:00], used_time[0:0:10], command[test.py -a 1]
 ```
 
 - `o` means command exec finish
