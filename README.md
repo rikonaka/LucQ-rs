@@ -33,6 +33,8 @@ This will activate the `executor`, waiting for the user to add a command.
 
 ### Execute in the second window or tmux
 
+We add the code or commands we want to execute sequentially in the second window or `tmux`.
+
 Short command
 
 ```bash
@@ -69,3 +71,19 @@ x | id[9], user[riko], add_time[2023-10-14 15:49:01], used_time[0:0:0], command[
 - `o` means command exec finish
 - `r` means command still running
 - `x` means command not started
+
+### Remove command from queue
+
+Use `--list` to find out command id (example 9) then
+
+```bash
+lucq --remove 9
+```
+
+### Clean database
+
+LucQ use sqlite to store the command (`$HOME/lucq.sql`)
+
+```bash
+lucq --clean
+```
