@@ -33,25 +33,25 @@ This will activate the `executor`, waiting for the user to add a command.
 
 ### Execute in the second window or tmux
 
-#### Short command
+Short command
 
 ```bash
 lucq --add ls
 ```
 
-#### Long command
+Long command
 
 ```bash
 lucq --add "test.py -a 1"
 ```
 
-### Show progress
+Show progress
 
 ```bash
 lucq --list
 ```
 
-#### Outputs
+Outputs
 
 ```bash
 S | Jobs
