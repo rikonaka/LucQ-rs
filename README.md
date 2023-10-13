@@ -68,7 +68,7 @@ x | id[8], user[riko], add_time[2023-10-14 15:48:48], used_time[0:0:0], command[
 x | id[9], user[riko], add_time[2023-10-14 15:49:01], used_time[0:0:0], command[test.py -a 1]
 ```
 
-- `o` means command exec finish
+- `o` means command execute finished
 - `r` means command still running
 - `x` means command not started
 
