@@ -10,7 +10,7 @@ use db::Database;
 
 static SQLITE_DB: &str = "lucq.sql";
 
-/// Simple program to greet a person
+/// Linux user command queue
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -166,7 +166,7 @@ fn main() -> Result<()> {
         } else if args.list {
             let db = Database::new()?;
             let rets = db.select()?;
-            println!("S | Job");
+            println!("S | Jobs");
             for r in rets {
                 // add time convert
                 let add_time = DateTime::from_timestamp(r.add_time, 0)
@@ -200,8 +200,8 @@ fn main() -> Result<()> {
             }
         }
     } else if args.mode == "exec" {
+        let db = Database::new()?;
         loop {
-            let db = Database::new()?;
             let rets = db.select_not_finish()?;
             for r in rets {
                 // println!("{}", &r.command);
