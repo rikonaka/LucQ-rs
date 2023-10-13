@@ -1,6 +1,6 @@
 # LucQ-rs
 
-Linux user command queue, help Linux users execute commands or codes in sequence.
+Linux user command queue, help Linux users execute commands or codes (`Shell` and `Python`) in sequence.
 
 ## Usage
 
