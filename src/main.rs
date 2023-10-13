@@ -54,7 +54,7 @@ fn get_exec_path(file_extension: &str) -> String {
 
 enum ScriptType {
     Unsupport,
-    Bash,
+    Shell,
     Python,
     ShellCommand,
 }
@@ -68,7 +68,7 @@ fn command_judge(command: &str) -> ScriptType {
         }
 
         if c.contains(".sh") {
-            return ScriptType::Bash;
+            return ScriptType::Shell;
         } else if c.contains(".py") {
             return ScriptType::Python;
         }
@@ -83,14 +83,14 @@ fn command_judge(command: &str) -> ScriptType {
 fn executor(command: &str) -> Result<()> {
     let st = command_judge(command);
     let exec = match st {
-        ScriptType::Bash => get_exec_path("bash"),
+        ScriptType::Shell => get_exec_path("bash"),
         ScriptType::Python => get_exec_path("python3"),
         ScriptType::ShellCommand => command.to_string(),
         ScriptType::Unsupport => command.to_string(),
     };
 
     let status = match st {
-        ScriptType::Bash | ScriptType::Python => {
+        ScriptType::Shell | ScriptType::Python => {
             let mut cs: Vec<&str> = command.split(" ").collect();
             let mut args = Vec::new();
             if cs.len() > 0 {
