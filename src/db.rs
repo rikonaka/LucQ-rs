@@ -93,7 +93,7 @@ impl Database {
     }
     pub fn select_not_finish(&self) -> Result<Vec<Commands>> {
         let mut stmt = self.conn.prepare(
-            "SELECT id, user, command, executor, add_time, status, start_time, finish_time FROM commands WHERE status=0",
+            "SELECT id, user, command, executor, add_time, status, start_time, finish_time FROM commands WHERE status=0 ORDER BY id ASC LIMIT 1",
         )?;
 
         let commands_iter = stmt.query_map([], |row| {
