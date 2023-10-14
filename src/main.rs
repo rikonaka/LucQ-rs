@@ -196,10 +196,16 @@ fn list() -> Result<()> {
         };
 
         // used time format
-        let used_time = if r.used_time != -1 {
-            let seconds = r.used_time % 60;
-            let minutes = (r.used_time / 60) % 60;
-            let hours = (r.used_time / 60) / 60;
+        let used_time = if r.start_time != -1 {
+            let used_time = if r.finish_time != -1 {
+                r.finish_time - r.start_time
+            } else {
+                Utc::now().timestamp() - r.start_time
+            };
+
+            let seconds = used_time % 60;
+            let minutes = (used_time / 60) % 60;
+            let hours = (used_time / 60) / 60;
 
             let convert = |input: i64| -> String {
                 let result_str = if input < 10 {
@@ -255,6 +261,7 @@ fn exec() -> Result<()> {
             let executor = Executor::new(&r.command, &r.executor);
             db.update_command_running(r.id)?;
             let start_time = Utc::now().timestamp();
+            db.update_command_start_time(r.id, start_time)?;
             match executor.exec() {
                 Ok(_) => db.update_command_finish(r.id)?,
                 Err(e) => {
@@ -262,8 +269,8 @@ fn exec() -> Result<()> {
                     db.update_command_error(r.id)?;
                 }
             }
-            let end_time = Utc::now().timestamp();
-            db.update_command_used_time(r.id, end_time - start_time)?;
+            let finish_time = Utc::now().timestamp();
+            db.update_command_finish_time(r.id, finish_time)?;
         }
         thread::sleep(duration);
     }

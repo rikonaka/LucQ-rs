@@ -11,7 +11,8 @@ pub struct Commands {
     pub executor: String,
     pub add_time: i64, // UTC timestamp
     pub status: i32,   // 1 finish, 0 not finish, 9 running
-    pub used_time: i64,
+    pub start_time: i64,
+    pub finish_time: i64,
 }
 
 pub struct Database {
@@ -33,7 +34,8 @@ impl Database {
                     executor    TEXT NOT NULL,
                     add_time    INTEGER,
                     status      INTEGER,
-                    used_time   INTEGER
+                    start_time   INTEGER,
+                    finish_time   INTEGER
                 )",
             (), // empty list of parameters.
         )?;
@@ -47,11 +49,12 @@ impl Database {
             executor: executor.to_string(),
             add_time,
             status: 0,
-            used_time: -1,
+            start_time: -1,
+            finish_time: -1,
         };
         self.conn.execute(
-            "INSERT INTO commands (user, command, executor, add_time, status, used_time) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-            (&cm.user, &cm.command, &cm.executor, &cm.add_time, &cm.status, &cm.used_time),
+            "INSERT INTO commands (user, command, executor, add_time, status, start_time, finish_time) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            (&cm.user, &cm.command, &cm.executor, &cm.add_time, &cm.status, &cm.start_time, &cm.finish_time),
         )?;
         Ok(())
     }
@@ -62,7 +65,7 @@ impl Database {
     }
     pub fn select(&self) -> Result<Vec<Commands>> {
         let mut stmt = self.conn.prepare(
-            "SELECT id, user, command, executor, add_time, status, used_time FROM commands",
+            "SELECT id, user, command, executor, add_time, status, start_time, finish_time FROM commands",
         )?;
 
         let commands_iter = stmt.query_map([], |row| {
@@ -73,7 +76,8 @@ impl Database {
                 executor: row.get(3)?,
                 add_time: row.get(4)?,
                 status: row.get(5)?,
-                used_time: row.get(6)?,
+                start_time: row.get(6)?,
+                finish_time: row.get(7)?,
             })
         })?;
 
@@ -89,7 +93,7 @@ impl Database {
     }
     pub fn select_not_finish(&self) -> Result<Vec<Commands>> {
         let mut stmt = self.conn.prepare(
-            "SELECT id, user, command, executor, add_time, status, used_time FROM commands WHERE status=0",
+            "SELECT id, user, command, executor, add_time, status, start_time, finish_time FROM commands WHERE status=0",
         )?;
 
         let commands_iter = stmt.query_map([], |row| {
@@ -100,7 +104,8 @@ impl Database {
                 executor: row.get(3)?,
                 add_time: row.get(4)?,
                 status: row.get(5)?,
-                used_time: row.get(6)?,
+                start_time: row.get(7)?,
+                finish_time: row.get(6)?,
             })
         })?;
 
@@ -129,10 +134,18 @@ impl Database {
         self.conn.execute(&stmt, ())?;
         Ok(())
     }
-    pub fn update_command_used_time(&self, id: i32, used_time: i64) -> Result<()> {
+    pub fn update_command_start_time(&self, id: i32, start_time: i64) -> Result<()> {
         let stmt = format!(
-            "UPDATE commands SET used_time={} WHERE id={}",
-            used_time, id
+            "UPDATE commands SET start_time={} WHERE id={}",
+            start_time, id
+        );
+        self.conn.execute(&stmt, ())?;
+        Ok(())
+    }
+    pub fn update_command_finish_time(&self, id: i32, finish_time: i64) -> Result<()> {
+        let stmt = format!(
+            "UPDATE commands SET finish_time={} WHERE id={}",
+            finish_time, id
         );
         self.conn.execute(&stmt, ())?;
         Ok(())
