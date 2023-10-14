@@ -4,6 +4,7 @@ use clap::Parser;
 use home::home_dir;
 use std::fs;
 use std::process::Command;
+use std::{thread, time};
 
 pub mod db;
 use db::Database;
@@ -25,6 +26,10 @@ struct Args {
     /// Remove one command
     #[arg(short, long, default_value = "null")]
     remove: String,
+
+    /// Executor path (example: /usr/bin/python3)
+    #[arg(short, long, default_value = "null")]
+    executor: String,
 
     /// List all commands
     #[arg(short, long, action)]
@@ -52,174 +57,233 @@ fn get_exec_path(file_extension: &str) -> String {
     user.trim().to_string()
 }
 
-enum ScriptType {
+enum CommandType {
     Unsupport,
     Shell,
     Python,
     ShellCommand,
+    Binary,
 }
 
-fn command_judge(command: &str) -> ScriptType {
-    let cs: Vec<&str> = command.split(" ").collect();
-    let mut contain_dot = false;
-    for c in cs {
-        if c.contains(".") {
-            contain_dot = true;
-        }
-
-        if c.contains(".sh") {
-            return ScriptType::Shell;
-        } else if c.contains(".py") {
-            return ScriptType::Python;
-        }
-    }
-    if contain_dot {
-        ScriptType::Unsupport
-    } else {
-        ScriptType::ShellCommand
-    }
+struct Executor {
+    command: String,
+    executor: String,
 }
 
-fn executor(command: &str) -> Result<()> {
-    let st = command_judge(command);
-    let exec = match st {
-        ScriptType::Shell => get_exec_path("bash"),
-        ScriptType::Python => get_exec_path("python3"),
-        ScriptType::ShellCommand => command.to_string(),
-        ScriptType::Unsupport => command.to_string(),
-    };
+impl Executor {
+    fn new(command: &str, executor: &str) -> Executor {
+        let command = command.to_string();
+        let executor = executor.to_string();
+        Executor { command, executor }
+    }
+    fn command_judge(command: &str) -> CommandType {
+        let cs: Vec<&str> = command.split(" ").collect();
+        let mut contain_dot = false;
+        for c in cs {
+            if c.contains(".") {
+                contain_dot = true;
+            }
 
-    let status = match st {
-        ScriptType::Shell | ScriptType::Python => {
-            let mut cs: Vec<&str> = command.split(" ").collect();
-            let mut args = Vec::new();
-            if cs.len() > 0 {
-                for c in &mut cs[1..] {
-                    args.push(c.to_string());
-                }
+            if c.contains(".sh") {
+                return CommandType::Shell;
+            } else if c.contains(".py") {
+                return CommandType::Python;
+            } else if c.contains(".o") | c.contains(".exe") {
+                return CommandType::Binary;
             }
-            println!(">>> exec: {exec} {command}");
-            let status = if cs.len() > 1 {
-                Command::new(exec).arg(cs[0]).args(args).status()?
+        }
+        if contain_dot {
+            CommandType::Unsupport
+        } else {
+            CommandType::ShellCommand
+        }
+    }
+    fn exec(&self) -> Result<()> {
+        //           executor        file    parameters
+        // example: /usr/bin/python3 test.py -a 1
+
+        let command = &self.command;
+        let executor = if self.executor == "null" {
+            let ct = Executor::command_judge(command);
+            match ct {
+                CommandType::Shell => get_exec_path("bash"),
+                CommandType::Python => get_exec_path("python3"),
+                CommandType::ShellCommand | CommandType::Binary => command.to_string(),
+                CommandType::Unsupport => command.to_string(),
+            }
+        } else {
+            self.executor.to_string()
+        };
+
+        let mut cs: Vec<&str> = command.split(" ").collect();
+        let status = if cs.len() > 0 {
+            let file = cs[0];
+            let mut args = Vec::new();
+            for c in &mut cs[1..] {
+                args.push(c.to_string());
+            }
+            // println!("{} {}", executor, file);
+            let status = if executor != file {
+                println!(">>> exec: {} {}", executor, command);
+                Command::new(executor).arg(file).args(args).status()?
             } else {
-                Command::new(exec).arg(cs[0]).status()?
+                println!(">>> exec: {}", command);
+                Command::new(file).args(args).status()?
             };
             Some(status)
-        }
-        ScriptType::ShellCommand => {
-            let mut cs: Vec<&str> = command.split(" ").collect();
-            let mut args = Vec::new();
-            if cs.len() > 0 {
-                for c in &mut cs[1..] {
-                    args.push(c.to_string());
-                }
-            }
-            println!(">>> exec: {command}");
-            let status = if args.len() > 0 {
-                Command::new(cs[0]).args(args).status()?
-            } else {
-                Command::new(cs[0]).status()?
-            };
-            Some(status)
-        }
-        ScriptType::Unsupport => {
-            println!(">>> Unsupport file: {}", exec);
+        } else {
             None
-        }
-    };
+        };
 
-    match status {
-        Some(status) => {
-            if status.success() {
-                println!("<<<");
-            } else {
-                println!("<<< error")
+        match status {
+            Some(status) => {
+                if status.success() {
+                    println!("<<<");
+                } else {
+                    println!("<<< error")
+                }
             }
+            _ => println!("<<<"),
         }
-        _ => println!("<<<"),
-    }
 
+        Ok(())
+    }
+}
+
+fn clean() {
+    let home = home_dir().unwrap();
+    let sqlite_file_path = format!("{}/{}", home.to_string_lossy(), SQLITE_DB);
+    match fs::remove_file(sqlite_file_path) {
+        _ => (),
+    }
+    println!("Clean database finish!");
+}
+
+fn add(command: &str, executor: &str) -> Result<()> {
+    let add_time = Utc::now().timestamp();
+    let db = Database::new()?;
+    let user = get_username();
+    db.insert(&user, &command, &executor, add_time)?;
     Ok(())
+}
+
+fn remove(remove_str: &str) -> Result<()> {
+    let db = Database::new()?;
+    let id: i32 = remove_str.parse().unwrap();
+    db.remove(id)?;
+    Ok(())
+}
+
+fn list() -> Result<()> {
+    let db = Database::new()?;
+    let rets = db.select()?;
+    println!("S | Jobs");
+    for r in rets {
+        // add time convert
+        let add_time = DateTime::from_timestamp(r.add_time, 0)
+            .unwrap()
+            .with_timezone(&Local);
+
+        // status
+        let status = if r.status == 0 {
+            "x"
+        } else if r.status == 1 {
+            "o"
+        } else if r.status == 2 {
+            "e"
+        } else {
+            "r"
+        };
+
+        // used time format
+        let used_time = if r.used_time != -1 {
+            let seconds = r.used_time % 60;
+            let minutes = (r.used_time / 60) % 60;
+            let hours = (r.used_time / 60) / 60;
+
+            let convert = |input: i64| -> String {
+                let result_str = if input < 10 {
+                    format!("0{}", input)
+                } else {
+                    format!("{}", input)
+                };
+                result_str
+            };
+
+            let seconds_str = convert(seconds);
+            let minutes_str = convert(minutes);
+            let hours_str = convert(hours);
+            let used_time = format!("{}:{}:{}", hours_str, minutes_str, seconds_str);
+            used_time
+        } else {
+            String::from("0:0:0")
+        };
+
+        if r.executor != "null" {
+            println!(
+                "{} | id[{}], user[{}], add_time[{}], used_time[{}], command[{}], executor[{}]",
+                status,
+                r.id,
+                r.user,
+                add_time.format("%Y-%m-%d %H:%M:%S"),
+                used_time,
+                r.command,
+                r.executor
+            )
+        } else {
+            println!(
+                "{} | id[{}], user[{}], add_time[{}], used_time[{}], command[{}]",
+                status,
+                r.id,
+                r.user,
+                add_time.format("%Y-%m-%d %H:%M:%S"),
+                used_time,
+                r.command
+            )
+        }
+    }
+    Ok(())
+}
+
+fn exec() -> Result<()> {
+    let db = Database::new()?;
+    let duration = time::Duration::from_secs_f32(2.0);
+    loop {
+        let rets = db.select_not_finish()?;
+        for r in rets {
+            // println!("{}", &r.command);
+            let executor = Executor::new(&r.command, &r.executor);
+            db.update_command_running(r.id)?;
+            let start_time = Utc::now().timestamp();
+            match executor.exec() {
+                Ok(_) => db.update_command_finish(r.id)?,
+                Err(e) => {
+                    println!("{}", e);
+                    db.update_command_error(r.id)?;
+                }
+            }
+            let end_time = Utc::now().timestamp();
+            db.update_command_used_time(r.id, end_time - start_time)?;
+
+            thread::sleep(duration);
+        }
+    }
 }
 
 fn main() -> Result<()> {
     let args = Args::parse();
     if args.clean {
-        let home = home_dir().unwrap();
-        let sqlite_file_path = format!("{}/{}", home.to_string_lossy(), SQLITE_DB);
-        match fs::remove_file(sqlite_file_path) {
-            _ => (),
-        }
-        println!("Clean database finish!");
+        clean();
     } else if args.mode == "cli" {
         if args.add != "null" {
-            // add new command
-            let add_time = Utc::now().timestamp();
-            let command = args.add.to_string();
-            let db = Database::new()?;
-            let user = get_username();
-            db.insert(&user, &command, add_time)?;
+            add(&args.add, &args.executor)?;
         } else if args.remove != "null" {
-            let db = Database::new()?;
-            let id: i32 = args.remove.parse().unwrap();
-            db.remove(id)?;
+            remove(&args.remove)?;
         } else if args.list {
-            let db = Database::new()?;
-            let rets = db.select()?;
-            println!("S | Jobs");
-            for r in rets {
-                // add time convert
-                let add_time = DateTime::from_timestamp(r.add_time, 0)
-                    .unwrap()
-                    .with_timezone(&Local);
-
-                // status
-                let status = if r.status == 0 {
-                    "x"
-                } else if r.status == 1 {
-                    "o"
-                } else if r.status == 2 {
-                    "e"
-                } else {
-                    "r"
-                };
-
-                // used time format
-                let used_time = if r.used_time != -1 {
-                    let seconds = r.used_time % 60;
-                    let minutes = (r.used_time / 60) % 60;
-                    let hours = (r.used_time / 60) / 60;
-                    let used_time = format!("{}:{}:{}", hours, minutes, seconds);
-                    used_time
-                } else {
-                    String::from("0:0:0")
-                };
-
-                println!(
-                    "{} | id[{}], user[{}], add_time[{}], used_time[{}], command[{}]",
-                    status, r.id, r.user, add_time, used_time, r.command
-                )
-            }
+            list()?;
         }
     } else if args.mode == "exec" {
-        let db = Database::new()?;
-        loop {
-            let rets = db.select_not_finish()?;
-            for r in rets {
-                // println!("{}", &r.command);
-                db.update_command_running(r.id)?;
-                let start_time = Utc::now().timestamp();
-                match executor(&r.command) {
-                    Ok(_) => db.update_command_finish(r.id)?,
-                    Err(e) => {
-                        println!("{}", e);
-                        db.update_command_error(r.id)?;
-                    }
-                }
-                let end_time = Utc::now().timestamp();
-                db.update_command_used_time(r.id, end_time - start_time)?;
-            }
-        }
+        exec()?;
     }
     Ok(())
 }

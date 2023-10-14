@@ -47,6 +47,12 @@ Long command
 lucq --add "test.py -a 1"
 ```
 
+Specify executor
+
+```bash
+lucq --add test.py --executor /home/riko/venv/bin/python
+```
+
 Show progress
 
 ```bash
