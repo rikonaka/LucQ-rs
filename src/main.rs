@@ -264,7 +264,6 @@ fn exec() -> Result<()> {
             }
             let end_time = Utc::now().timestamp();
             db.update_command_used_time(r.id, end_time - start_time)?;
-
         }
         thread::sleep(duration);
     }
