@@ -216,7 +216,7 @@ fn list() -> Result<()> {
             let used_time = format!("{}:{}:{}", hours_str, minutes_str, seconds_str);
             used_time
         } else {
-            String::from("0:0:0")
+            String::from("00:00:00")
         };
 
         if r.executor != "null" {
