@@ -247,7 +247,7 @@ fn list() -> Result<()> {
 
 fn exec() -> Result<()> {
     let db = Database::new()?;
-    let duration = time::Duration::from_secs_f32(2.0);
+    let duration = time::Duration::from_secs_f32(1.0);
     loop {
         let rets = db.select_not_finish()?;
         for r in rets {
@@ -265,8 +265,8 @@ fn exec() -> Result<()> {
             let end_time = Utc::now().timestamp();
             db.update_command_used_time(r.id, end_time - start_time)?;
 
-            thread::sleep(duration);
         }
+        thread::sleep(duration);
     }
 }
 
