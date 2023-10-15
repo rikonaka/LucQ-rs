@@ -63,15 +63,15 @@ Outputs
 
 ```bash
 S | Jobs
-o | id[1], user[riko], add_time[2023-10-14 15:41:21], used_time[00:00:10], command[test.py]
-o | id[2], user[riko], add_time[2023-10-14 15:41:22], used_time[00:00:10], command[test.py]
-o | id[3], user[riko], add_time[2023-10-14 15:41:22], used_time[00:00:10], command[test.py]
-o | id[4], user[riko], add_time[2023-10-14 15:46:45], used_time[00:00:10], command[test.py -a 1]
-o | id[5], user[riko], add_time[2023-10-14 15:47:29], used_time[00:00:10], command[test.py -a 1]
-o | id[6], user[riko], add_time[2023-10-14 15:47:35], used_time[00:00:10], command[test.py -a 1]
-r | id[7], user[riko], add_time[2023-10-14 15:47:36], used_time[00:00:00], command[test.py -a 1]
-x | id[8], user[riko], add_time[2023-10-14 15:48:48], used_time[00:00:00], command[test.py -a 1]
-x | id[9], user[riko], add_time[2023-10-14 15:49:01], used_time[00:00:00], command[test.py -a 1]
+o | id[1], user[riko], add[10-14 15:41], start[10-14 15:41], used[00:00:10], command[test.py]
+o | id[2], user[riko], add[10-14 15:41], start[10-14 15:51], used[00:00:10], command[test.py]
+o | id[3], user[riko], add[10-14 15:41], start[10-14 16:01], used[00:00:10], command[test.py]
+o | id[4], user[riko], add[10-14 15:46], start[10-14 15:11], used[00:00:10], command[test.py -a 1]
+o | id[5], user[riko], add[10-14 15:47], start[10-14 15:21], used[00:00:10], command[test.py -a 1]
+o | id[6], user[riko], add[10-14 15:47], start[10-14 15:31], used[00:00:10], command[test.py -a 1]
+r | id[7], user[riko], add[10-14 15:47], start[10-14 15:41], used[00:00:00], command[test.py -a 1]
+x | id[8], user[riko], add[10-14 15:48], start[00-00 00:00], used[00:00:00], command[test.py -a 1]
+x | id[9], user[riko], add[10-14 15:49], start[00-00 00:00], used[00:00:00], command[test.py -a 1]
 ```
 
 - `o` means command execute finished
