@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo 1
+echo "1"
 sleep 5
-echo 2
+echo "2"
 sleep 5
-echo 3
+echo "3"

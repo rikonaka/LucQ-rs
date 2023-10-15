@@ -10,17 +10,17 @@ pub struct Commands {
     pub command: String,
     pub executor: String,
     pub add_time: i64, // UTC timestamp
-    pub status: i32,   // 1 finish, 0 not finish, 9 running
+    pub status: i32,   // 1 finish, 0 not finish, 2 error, 3 user cancel, 9 running
     pub start_time: i64,
     pub finish_time: i64,
 }
 
-pub struct Database {
+pub struct SqliteDB {
     pub conn: Connection,
 }
 
-impl Database {
-    pub fn new() -> Result<Database> {
+impl SqliteDB {
+    pub fn new() -> Result<SqliteDB> {
         let home = home_dir().unwrap();
         let sqlite_file_path = format!("{}/{}", home.to_string_lossy(), SQLITE_DB);
         // println!("{}", sqlite_file_path);
@@ -39,7 +39,7 @@ impl Database {
                 )",
             (), // empty list of parameters.
         )?;
-        Ok(Database { conn })
+        Ok(SqliteDB { conn })
     }
     pub fn insert(&self, user: &str, command: &str, executor: &str, add_time: i64) -> Result<()> {
         let cm = Commands {
@@ -131,6 +131,11 @@ impl Database {
     }
     pub fn update_command_error(&self, id: i32) -> Result<()> {
         let stmt = format!("UPDATE commands SET status=2 WHERE id={}", id);
+        self.conn.execute(&stmt, ())?;
+        Ok(())
+    }
+    pub fn update_command_cancel(&self, id: i32) -> Result<()> {
+        let stmt = format!("UPDATE commands SET status=3 WHERE id={}", id);
         self.conn.execute(&stmt, ())?;
         Ok(())
     }

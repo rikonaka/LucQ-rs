@@ -12,6 +12,8 @@ if args.a == 1:
 if args.b == 'b':
     print('B')
 
+raise Exception('test')
+
 print(1)
 time.sleep(5)
 print(2)
