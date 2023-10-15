@@ -180,6 +180,9 @@ pub fn list() -> Result<()> {
         let add_time = DateTime::from_timestamp(r.add_time, 0)
             .unwrap()
             .with_timezone(&Local);
+        let start_time = DateTime::from_timestamp(r.start_time, 0)
+            .unwrap()
+            .with_timezone(&Local);
 
         // status
         let status = if r.status == 0 {
@@ -226,22 +229,24 @@ pub fn list() -> Result<()> {
 
         if r.executor != "null" {
             println!(
-                "{} | id[{}], user[{}], add_time[{}], used_time[{}], command[{}], executor[{}]",
+                "{} | id[{}], user[{}], add[{}], start[{}], used[{}], command[{}], executor[{}]",
                 status,
                 r.id,
                 r.user,
                 add_time.format("%Y-%m-%d %H:%M:%S"),
+                start_time.format("%Y-%m-%d %H:%M:%S"),
                 used_time,
                 r.command,
                 r.executor
             )
         } else {
             println!(
-                "{} | id[{}], user[{}], add_time[{}], used_time[{}], command[{}]",
+                "{} | id[{}], user[{}], add[{}], start[{}], used[{}], command[{}]",
                 status,
                 r.id,
                 r.user,
                 add_time.format("%Y-%m-%d %H:%M:%S"),
+                start_time.format("%Y-%m-%d %H:%M:%S"),
                 used_time,
                 r.command
             )
