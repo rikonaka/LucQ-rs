@@ -3,7 +3,7 @@ use chrono::{DateTime, Local, Utc};
 use home::home_dir;
 use std::fs;
 use std::os::unix::process::ExitStatusExt;
-use std::process::Command;
+use std::process::{Command, Stdio};
 use std::{thread, time};
 
 use crate::sqlitedb::SqliteDB;
@@ -84,10 +84,17 @@ impl Executor {
             }
             let status = if executor != file {
                 println!(">>> Run: {} {}", executor, command);
-                Command::new(executor).arg(file).args(args).status()?
+                Command::new(executor)
+                    .arg(file)
+                    .args(args)
+                    .stderr(Stdio::null()) // do not show the ctrl-c error message
+                    .status()?
             } else {
                 println!(">>> Run: {}", command);
-                Command::new(file).args(args).status()?
+                Command::new(file)
+                    .args(args)
+                    .stderr(Stdio::null()) // do not show the ctrl-c error message
+                    .status()?
             };
             Some(status)
         } else {
@@ -229,24 +236,22 @@ pub fn list() -> Result<()> {
 
         if r.executor != "null" {
             println!(
-                "{} | id[{}], user[{}], add[{}], start[{}], used[{}], command[{}], executor[{}]",
+                "{} | id[{}], add[{}], start[{}], used[{}], command[{}], executor[{}]",
                 status,
                 r.id,
-                r.user,
-                add_time.format("%Y-%m-%d %H:%M:%S"),
-                start_time.format("%Y-%m-%d %H:%M:%S"),
+                add_time.format("%m-%d %H:%M"),
+                start_time.format("%m-%d %H:%M"),
                 used_time,
                 r.command,
                 r.executor
             )
         } else {
             println!(
-                "{} | id[{}], user[{}], add[{}], start[{}], used[{}], command[{}]",
+                "{} | id[{}], add[{}], start[{}], used[{}], command[{}]",
                 status,
                 r.id,
-                r.user,
-                add_time.format("%Y-%m-%d %H:%M:%S"),
-                start_time.format("%Y-%m-%d %H:%M:%S"),
+                add_time.format("%m-%d %H:%M"),
+                start_time.format("%m-%d %H:%M"),
                 used_time,
                 r.command
             )
