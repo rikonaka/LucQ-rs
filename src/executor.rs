@@ -183,14 +183,6 @@ pub fn list() -> Result<()> {
     let rets = db.select()?;
     println!("S | Jobs");
     for r in rets {
-        // add time convert
-        let add_time = DateTime::from_timestamp(r.add_time, 0)
-            .unwrap()
-            .with_timezone(&Local);
-        let start_time = DateTime::from_timestamp(r.start_time, 0)
-            .unwrap()
-            .with_timezone(&Local);
-
         // status
         let status = if r.status == 0 {
             "x"
@@ -234,26 +226,34 @@ pub fn list() -> Result<()> {
             String::from("00:00:00")
         };
 
+        // add time convert
+        let add_time_str = if r.add_time != -1 {
+            let add_time = DateTime::from_timestamp(r.add_time, 0)
+                .unwrap()
+                .with_timezone(&Local);
+            add_time.format("%m-%d %H:%M").to_string()
+        } else {
+            String::from("00-00 00:00")
+        };
+
+        let start_time_str = if r.start_time != -1 {
+            let start_time = DateTime::from_timestamp(r.start_time, 0)
+                .unwrap()
+                .with_timezone(&Local);
+            start_time.format("%m-%d %H:%M").to_string()
+        } else {
+            String::from("00-00 00:00")
+        };
+
         if r.executor != "null" {
             println!(
                 "{} | id[{}], add[{}], start[{}], used[{}], command[{}], executor[{}]",
-                status,
-                r.id,
-                add_time.format("%m-%d %H:%M"),
-                start_time.format("%m-%d %H:%M"),
-                used_time,
-                r.command,
-                r.executor
+                status, r.id, add_time_str, start_time_str, used_time, r.command, r.executor
             )
         } else {
             println!(
                 "{} | id[{}], add[{}], start[{}], used[{}], command[{}]",
-                status,
-                r.id,
-                add_time.format("%m-%d %H:%M"),
-                start_time.format("%m-%d %H:%M"),
-                used_time,
-                r.command
+                status, r.id, add_time_str, start_time_str, used_time, r.command
             )
         }
     }
