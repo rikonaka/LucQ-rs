@@ -3,6 +3,7 @@ use clap::Parser;
 use once_cell::sync::Lazy;
 use std::process;
 use std::sync::Mutex;
+use std::{thread, time};
 
 pub mod executor;
 pub mod sqlitedb;
@@ -41,6 +42,8 @@ struct Args {
 }
 
 fn user_quit() -> bool {
+    let dur = time::Duration::from_secs_f32(0.5);
+    thread::sleep(dur);
     println!("<<< Quit? [y/n]");
     let mut user_input = String::new();
     let _ = std::io::stdin().read_line(&mut user_input).unwrap();

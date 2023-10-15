@@ -3,7 +3,7 @@ use chrono::{DateTime, Local, Utc};
 use home::home_dir;
 use std::fs;
 use std::os::unix::process::ExitStatusExt;
-use std::process::{Command, Stdio};
+use std::process::Command;
 use std::{thread, time};
 
 use crate::sqlitedb::SqliteDB;
@@ -84,17 +84,10 @@ impl Executor {
             }
             let status = if executor != file {
                 println!(">>> Run: {} {}", executor, command);
-                Command::new(executor)
-                    .arg(file)
-                    .args(args)
-                    .stderr(Stdio::null()) // do not show the ctrl-c error message
-                    .status()?
+                Command::new(executor).arg(file).args(args).status()?
             } else {
                 println!(">>> Run: {}", command);
-                Command::new(file)
-                    .args(args)
-                    .stderr(Stdio::null()) // do not show the ctrl-c error message
-                    .status()?
+                Command::new(file).args(args).status()?
             };
             Some(status)
         } else {
