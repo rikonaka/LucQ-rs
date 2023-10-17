@@ -167,13 +167,13 @@ pub fn add(command: &str, executor: &str) -> Result<()> {
 pub fn remove(remove_str: &str) -> Result<()> {
     let db = SqliteDB::new()?;
     let id: i32 = remove_str.parse().unwrap();
-    db.remove(id)?;
+    db.remove_by_id(id)?;
     Ok(())
 }
 
 pub fn list() -> Result<()> {
     let db = SqliteDB::new()?;
-    let rets = db.select()?;
+    let rets = db.select_all()?;
     println!("S | Jobs");
     for r in rets {
         // status
@@ -267,24 +267,24 @@ pub fn exec() -> Result<()> {
             // rets == 1 if have job, == 0 if no job
             for r in rets {
                 let executor = Executor::new(&r.command, &r.executor);
-                db.update_command_running(r.id)?;
+                db.update_status_running(r.id)?;
                 let start_time = Utc::now().timestamp();
-                db.update_command_start_time(r.id, start_time)?;
+                db.update_start_time(r.id, start_time)?;
                 match executor.exec() {
                     Ok(exit_code) => match exit_code {
                         ExecutorExitCode::Success | ExecutorExitCode::Unknown => {
-                            db.update_command_finish(r.id)?
+                            db.update_status_finish(r.id)?
                         }
-                        ExecutorExitCode::Error => db.update_command_error(r.id)?,
-                        ExecutorExitCode::Cancel => db.update_command_cancel(r.id)?,
+                        ExecutorExitCode::Error => db.update_status_error(r.id)?,
+                        ExecutorExitCode::Cancel => db.update_status_cancel(r.id)?,
                     },
                     Err(e) => {
                         println!("Program error: {}", e);
-                        db.update_command_error(r.id)?;
+                        db.update_status_error(r.id)?;
                     }
                 }
                 let finish_time = Utc::now().timestamp();
-                db.update_command_finish_time(r.id, finish_time)?;
+                db.update_finish_time(r.id, finish_time)?;
             }
         }
         thread::sleep(duration);

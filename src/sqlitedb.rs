@@ -10,7 +10,7 @@ pub struct Commands {
     pub command: String,
     pub executor: String,
     pub add_time: i64, // UTC timestamp
-    pub status: i32,   // 1 finish, 0 not finish, 2 error, 3 user cancel, 9 running
+    pub status: i32,   // 1 finish, 0 not finish, 2 error, 3 cancel, 9 running
     pub start_time: i64,
     pub finish_time: i64,
 }
@@ -58,12 +58,12 @@ impl SqliteDB {
         )?;
         Ok(())
     }
-    pub fn remove(&self, id: i32) -> Result<()> {
+    pub fn remove_by_id(&self, id: i32) -> Result<()> {
         self.conn
             .execute(&format!("DELETE FROM commands WHERE id={}", id), ())?;
         Ok(())
     }
-    pub fn select(&self) -> Result<Vec<Commands>> {
+    pub fn select_all(&self) -> Result<Vec<Commands>> {
         let mut stmt = self.conn.prepare(
             "SELECT id, user, command, executor, add_time, status, start_time, finish_time FROM commands",
         )?;
@@ -119,27 +119,27 @@ impl SqliteDB {
 
         Ok(ret)
     }
-    pub fn update_command_running(&self, id: i32) -> Result<()> {
+    pub fn update_status_running(&self, id: i32) -> Result<()> {
         let stmt = format!("UPDATE commands SET status=9 WHERE id={}", id);
         self.conn.execute(&stmt, ())?;
         Ok(())
     }
-    pub fn update_command_finish(&self, id: i32) -> Result<()> {
+    pub fn update_status_finish(&self, id: i32) -> Result<()> {
         let stmt = format!("UPDATE commands SET status=1 WHERE id={}", id);
         self.conn.execute(&stmt, ())?;
         Ok(())
     }
-    pub fn update_command_error(&self, id: i32) -> Result<()> {
+    pub fn update_status_error(&self, id: i32) -> Result<()> {
         let stmt = format!("UPDATE commands SET status=2 WHERE id={}", id);
         self.conn.execute(&stmt, ())?;
         Ok(())
     }
-    pub fn update_command_cancel(&self, id: i32) -> Result<()> {
+    pub fn update_status_cancel(&self, id: i32) -> Result<()> {
         let stmt = format!("UPDATE commands SET status=3 WHERE id={}", id);
         self.conn.execute(&stmt, ())?;
         Ok(())
     }
-    pub fn update_command_start_time(&self, id: i32, start_time: i64) -> Result<()> {
+    pub fn update_start_time(&self, id: i32, start_time: i64) -> Result<()> {
         let stmt = format!(
             "UPDATE commands SET start_time={} WHERE id={}",
             start_time, id
@@ -147,7 +147,7 @@ impl SqliteDB {
         self.conn.execute(&stmt, ())?;
         Ok(())
     }
-    pub fn update_command_finish_time(&self, id: i32, finish_time: i64) -> Result<()> {
+    pub fn update_finish_time(&self, id: i32, finish_time: i64) -> Result<()> {
         let stmt = format!(
             "UPDATE commands SET finish_time={} WHERE id={}",
             finish_time, id
