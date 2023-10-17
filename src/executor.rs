@@ -25,6 +25,46 @@ enum ExecutorExitCode {
     Unknown,
 }
 
+fn command_judge(command: &str) -> CommandType {
+    let cs: Vec<&str> = command.split(" ").collect();
+    let mut contain_dot = false;
+    for c in cs {
+        if c.contains(".") {
+            contain_dot = true;
+        }
+
+        if c.contains(".sh") {
+            return CommandType::Shell;
+        } else if c.contains(".py") {
+            return CommandType::Python;
+        } else if c.contains(".o") | c.contains(".exe") {
+            return CommandType::Binary;
+        }
+    }
+    if contain_dot {
+        CommandType::Unsupport
+    } else {
+        CommandType::Command
+    }
+}
+
+fn get_username() -> String {
+    let linux_command = Command::new("whoami")
+        .output()
+        .expect("failed to execute process");
+    let user = String::from_utf8_lossy(&linux_command.stdout);
+    user.trim().to_string()
+}
+
+fn get_exec_path(file_extension: &str) -> String {
+    let linux_command = Command::new("which")
+        .arg(file_extension)
+        .output()
+        .expect("failed to execute process");
+    let user = String::from_utf8_lossy(&linux_command.stdout);
+    user.trim().to_string()
+}
+
 struct Executor {
     command: String,
     executor: String,
@@ -36,36 +76,14 @@ impl Executor {
         let executor = executor.to_string();
         Executor { command, executor }
     }
-    fn command_judge(command: &str) -> CommandType {
-        let cs: Vec<&str> = command.split(" ").collect();
-        let mut contain_dot = false;
-        for c in cs {
-            if c.contains(".") {
-                contain_dot = true;
-            }
-
-            if c.contains(".sh") {
-                return CommandType::Shell;
-            } else if c.contains(".py") {
-                return CommandType::Python;
-            } else if c.contains(".o") | c.contains(".exe") {
-                return CommandType::Binary;
-            }
-        }
-        if contain_dot {
-            CommandType::Unsupport
-        } else {
-            CommandType::Command
-        }
-    }
     fn exec(&self) -> Result<ExecutorExitCode> {
         //           executor        file    parameters
         // example: /usr/bin/python3 test.py -a 1
 
         let command = &self.command;
         let executor = if self.executor == "null" {
-            let ct = Executor::command_judge(command);
-            match ct {
+            let command_type = command_judge(command);
+            match command_type {
                 CommandType::Shell => get_exec_path("bash"),
                 CommandType::Python => get_exec_path("python3"),
                 CommandType::Command | CommandType::Binary => command.to_string(),
@@ -75,11 +93,11 @@ impl Executor {
             self.executor.to_string()
         };
 
-        let mut cs: Vec<&str> = command.split(" ").collect();
-        let status = if cs.len() > 0 {
-            let file = cs[0];
+        let mut command_split: Vec<&str> = command.split(" ").collect();
+        let status = if command_split.len() > 0 {
+            let file = command_split[0];
             let mut args = Vec::new();
-            for c in &mut cs[1..] {
+            for c in &mut command_split[1..] {
                 args.push(c.to_string());
             }
             let status = if executor != file {
@@ -127,23 +145,6 @@ impl Executor {
 
         Ok(ret)
     }
-}
-
-fn get_username() -> String {
-    let linux_command = Command::new("whoami")
-        .output()
-        .expect("failed to execute process");
-    let user = String::from_utf8_lossy(&linux_command.stdout);
-    user.trim().to_string()
-}
-
-fn get_exec_path(file_extension: &str) -> String {
-    let linux_command = Command::new("which")
-        .arg(file_extension)
-        .output()
-        .expect("failed to execute process");
-    let user = String::from_utf8_lossy(&linux_command.stdout);
-    user.trim().to_string()
 }
 
 pub fn clean() {
