@@ -34,8 +34,8 @@ impl SqliteDB {
                     executor    TEXT NOT NULL,
                     add_time    INTEGER,
                     status      INTEGER,
-                    start_time   INTEGER,
-                    finish_time   INTEGER
+                    start_time  INTEGER,
+                    finish_time INTEGER
                 )",
             (), // empty list of parameters.
         )?;
