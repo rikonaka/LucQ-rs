@@ -14,7 +14,7 @@ enum CommandType {
     Unsupport,
     Shell,
     Python,
-    ShellCommand,
+    Command,
     Binary,
 }
 
@@ -55,7 +55,7 @@ impl Executor {
         if contain_dot {
             CommandType::Unsupport
         } else {
-            CommandType::ShellCommand
+            CommandType::Command
         }
     }
     fn exec(&self) -> Result<ExecutorExitCode> {
@@ -68,7 +68,7 @@ impl Executor {
             match ct {
                 CommandType::Shell => get_exec_path("bash"),
                 CommandType::Python => get_exec_path("python3"),
-                CommandType::ShellCommand | CommandType::Binary => command.to_string(),
+                CommandType::Command | CommandType::Binary => command.to_string(),
                 CommandType::Unsupport => command.to_string(),
             }
         } else {
@@ -100,8 +100,8 @@ impl Executor {
                     println!("<<<");
                     ExecutorExitCode::Success
                 } else {
-                    // signal: 2 (SIGINT) => user ctrl-c
                     // exit status: 1 => program error
+                    // signal: 2 (SIGINT) => user ctrl-c
                     let status_code = match status.code() {
                         Some(s) => s,
                         _ => match status.signal() {
@@ -113,7 +113,6 @@ impl Executor {
                         println!("<<< Error");
                         ExecutorExitCode::Error
                     } else if status_code == 2 {
-                        // println!("<<< Quit? [y/n]");
                         ExecutorExitCode::Cancel
                     } else {
                         ExecutorExitCode::Unknown
