@@ -7,7 +7,7 @@ use std::{thread, time};
 
 pub mod executor;
 pub mod sqlitedb;
-use executor::{add, clean, exec, list, remove};
+use executor::{add, clean, exec, list, remove, remove_many};
 
 static SQLITE_DB: &str = "lucq.sql";
 static USER_QUIT_OP: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
@@ -17,19 +17,23 @@ static USER_QUIT_OP: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
 #[command(author, version, about, long_about = None)]
 struct Args {
     /// Run mode (cli or exec)
-    #[arg(short, long, default_value = "cli")]
+    #[arg(short, long, value_name = "mode", default_value = "cli")]
     mode: String,
 
     /// Add one command
-    #[arg(short, long, default_value = "null")]
+    #[arg(short, long, value_name = "job", default_value = "null")]
     add: String,
 
     /// Remove one command
-    #[arg(short, long, default_value = "null")]
-    remove: String,
+    #[arg(short, long, value_name = "id", default_value_t = -1)]
+    remove: i32,
+
+    /// Remove many commands (example: 3-5 or 4-11)
+    #[arg(long, value_name = "ids", default_value = "null")]
+    remove_many: String,
 
     /// Executor path (example: /usr/bin/python3)
-    #[arg(short, long, default_value = "null")]
+    #[arg(short, long, value_name = "path", default_value = "null")]
     executor: String,
 
     /// List all commands
@@ -75,8 +79,10 @@ fn main() -> Result<()> {
     } else if args.mode == "cli" {
         if args.add != "null" {
             add(&args.add, &args.executor)?;
-        } else if args.remove != "null" {
-            remove(&args.remove)?;
+        } else if args.remove != -1 {
+            remove(args.remove)?;
+        } else if args.remove_many != "null" {
+            remove_many(&args.remove_many)?;
         } else if args.list {
             list()?;
         }

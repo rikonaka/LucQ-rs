@@ -164,10 +164,37 @@ pub fn add(command: &str, executor: &str) -> Result<()> {
     Ok(())
 }
 
-pub fn remove(remove_str: &str) -> Result<()> {
+pub fn remove(id: i32) -> Result<()> {
     let db = SqliteDB::new()?;
-    let id: i32 = remove_str.parse().unwrap();
     db.remove_by_id(id)?;
+    Ok(())
+}
+
+pub fn remove_many(id_str: &str) -> Result<()> {
+    let db = SqliteDB::new()?;
+    let mut success = true;
+    if id_str.contains("-") {
+        let id_split: Vec<&str> = id_str.split("-").collect();
+        if id_split.len() == 2 {
+            let start: i32 = id_split[0].parse().unwrap();
+            let end: i32 = id_split[1].parse().unwrap();
+            if start < end {
+                for i in start..end {
+                    db.remove_by_id(i)?;
+                }
+            } else {
+                success = false;
+            }
+        } else {
+            success = false;
+        }
+    } else {
+        success = false;
+    }
+
+    if success == false {
+        println!("Please use a-b format!");
+    }
     Ok(())
 }
 
