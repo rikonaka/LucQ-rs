@@ -10,21 +10,22 @@ Linux user command queue
 Usage: lucq [OPTIONS]
 
 Options:
-  -m, --mode <MODE>          Run mode (cli or exec) [default: cli]
-  -a, --add <ADD>            Add one command [default: null]
-  -r, --remove <REMOVE>      Remove one command [default: null]
-  -e, --executor <EXECUTOR>  Executor path (example: /usr/bin/python3) [default: null]
-  -l, --list                 List all commands
-  -c, --clean                Clean database
-  -h, --help                 Print help
-  -V, --version              Print version
+  -m, --mode <mode>        Run mode (cli or exec) [default: cli]
+  -a, --add <job>          Add one command [default: null]
+  -r, --remove <id>        Remove one command [default: -1]
+      --remove-many <ids>  Remove many commands (example: 3-5 or 4-11) [default: null]
+  -e, --executor <path>    Executor path (example: /usr/bin/python3) [default: null]
+  -l, --list               List all commands
+  -c, --clean              Clean database
+  -h, --help               Print help
+  -V, --version            Print version
 ```
 
-### Prepare two terminals with code environments
+### Prepare two terminals
 
-Operations such as activating the python environment in the window or `tmux`, etc.
+One for execute the command in background, one for add new command into queue.
 
-### Execute in the first window or tmux
+### Execute in the first window
 
 ```bash
 lucq --mode exec
@@ -32,7 +33,7 @@ lucq --mode exec
 
 This will activate the `executor`, waiting for the user to add a command.
 
-### Execute in the second window or tmux
+### Execute in the second window
 
 We add the code or commands we want to execute sequentially in the second window or `tmux`.
 
