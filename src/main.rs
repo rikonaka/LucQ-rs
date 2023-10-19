@@ -7,7 +7,7 @@ use std::{thread, time};
 
 pub mod executor;
 pub mod sqlitedb;
-use executor::{add, clean, exec, list, remove};
+use executor::{add, cancel, clean, exec, list, remove};
 
 static SQLITE_DB: &str = "lucq.sql";
 static USER_QUIT_OP: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
@@ -27,6 +27,10 @@ struct Args {
     /// Remove command(s) (example: 1 or 1-5)
     #[arg(short, long, value_name = "id(s)", default_value = "null")]
     remove: String,
+
+    /// Cancel command(s) (keep it in history, example: 1 or 1-5)
+    #[arg(short, long, value_name = "id(s)", default_value = "null")]
+    cancel: String,
 
     /// Executor path (example: /usr/bin/python3)
     #[arg(short, long, value_name = "path", default_value = "null")]
@@ -77,6 +81,8 @@ fn main() -> Result<()> {
             add(&args.add, &args.executor)?;
         } else if args.remove != "null" {
             remove(&args.remove)?;
+        } else if args.cancel != "null" {
+            cancel(&args.cancel)?;
         } else if args.list {
             list()?;
         }

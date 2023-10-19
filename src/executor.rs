@@ -193,6 +193,35 @@ pub fn remove(id_str: &str) -> Result<()> {
     Ok(())
 }
 
+pub fn cancel(id_str: &str) -> Result<()> {
+    let db = SqliteDB::new()?;
+    let mut success = true;
+    if id_str.contains("-") {
+        let id_split: Vec<&str> = id_str.split("-").collect();
+        if id_split.len() == 2 {
+            let start: i32 = id_split[0].parse().unwrap();
+            let end: i32 = id_split[1].parse().unwrap();
+            if start < end {
+                for id in start..=end {
+                    db.update_status_cancel(id)?;
+                }
+            } else {
+                success = false;
+            }
+        } else {
+            success = false;
+        }
+    } else {
+        let id: i32 = id_str.parse().unwrap();
+        db.update_status_cancel(id)?;
+    }
+
+    if success == false {
+        println!("Please use a-b format!");
+    }
+    Ok(())
+}
+
 pub fn list() -> Result<()> {
     let db = SqliteDB::new()?;
     let rets = db.select_all()?;
