@@ -10,15 +10,14 @@ Linux user command queue
 Usage: lucq [OPTIONS]
 
 Options:
-  -m, --mode <mode>        Run mode (cli or exec) [default: cli]
-  -a, --add <job>          Add one command [default: null]
-  -r, --remove <id>        Remove one command [default: -1]
-      --remove-many <ids>  Remove many commands (example: 3-5 or 4-11) [default: null]
-  -e, --executor <path>    Executor path (example: /usr/bin/python3) [default: null]
-  -l, --list               List all commands
-  -c, --clean              Clean database
-  -h, --help               Print help
-  -V, --version            Print version
+  -m, --mode <mode>      Run mode (cli or exec) [default: cli]
+  -a, --add <job>        Add one command [default: null]
+  -r, --remove <id(s)>   Remove command(s) (example: 1 or 1-5) [default: null]
+  -e, --executor <path>  Executor path (example: /usr/bin/python3) [default: null]
+  -l, --list             List all commands
+  -c, --clean            Clean database
+  -h, --help             Print help
+  -V, --version          Print version
 ```
 
 ### Prepare two terminals

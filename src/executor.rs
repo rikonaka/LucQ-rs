@@ -164,13 +164,7 @@ pub fn add(command: &str, executor: &str) -> Result<()> {
     Ok(())
 }
 
-pub fn remove(id: i32) -> Result<()> {
-    let db = SqliteDB::new()?;
-    db.remove_by_id(id)?;
-    Ok(())
-}
-
-pub fn remove_many(id_str: &str) -> Result<()> {
+pub fn remove(id_str: &str) -> Result<()> {
     let db = SqliteDB::new()?;
     let mut success = true;
     if id_str.contains("-") {
@@ -179,8 +173,8 @@ pub fn remove_many(id_str: &str) -> Result<()> {
             let start: i32 = id_split[0].parse().unwrap();
             let end: i32 = id_split[1].parse().unwrap();
             if start < end {
-                for i in start..end {
-                    db.remove_by_id(i)?;
+                for id in start..end {
+                    db.remove_by_id(id)?;
                 }
             } else {
                 success = false;
@@ -189,7 +183,8 @@ pub fn remove_many(id_str: &str) -> Result<()> {
             success = false;
         }
     } else {
-        success = false;
+        let id: i32 = id_str.parse().unwrap();
+        db.remove_by_id(id)?;
     }
 
     if success == false {
