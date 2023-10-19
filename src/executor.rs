@@ -1,6 +1,7 @@
 use anyhow::Result;
 use chrono::{DateTime, Local, Utc};
 use home::home_dir;
+use std::env;
 use std::fs;
 use std::os::unix::process::ExitStatusExt;
 use std::process::Command;
@@ -160,6 +161,12 @@ pub fn add(command: &str, executor: &str) -> Result<()> {
     let add_time = Utc::now().timestamp();
     let db = SqliteDB::new()?;
     let user = get_username();
+    let command = if command.contains(".") {
+        let current_dir = env::current_dir().unwrap();
+        format!("{}/{}", current_dir.display(), command)
+    } else {
+        command.to_string()
+    };
     db.insert(&user, &command, &executor, add_time)?;
     Ok(())
 }

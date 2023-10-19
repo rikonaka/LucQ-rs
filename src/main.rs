@@ -41,7 +41,7 @@ struct Args {
     list: bool,
 
     /// Clean database
-    #[arg(short, long, action(ArgAction::SetTrue))]
+    #[arg(long, action(ArgAction::SetTrue))]
     clean: bool,
 }
 
