@@ -173,7 +173,7 @@ pub fn remove(id_str: &str) -> Result<()> {
             let start: i32 = id_split[0].parse().unwrap();
             let end: i32 = id_split[1].parse().unwrap();
             if start < end {
-                for id in start..end {
+                for id in start..=end {
                     db.remove_by_id(id)?;
                 }
             } else {
