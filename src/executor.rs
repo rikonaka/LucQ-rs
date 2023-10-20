@@ -4,6 +4,7 @@ use home::home_dir;
 use std::env;
 use std::fs;
 use std::os::unix::process::ExitStatusExt;
+use std::path::Path;
 use std::process::Command;
 use std::{thread, time};
 
@@ -162,8 +163,16 @@ pub fn add(command: &str, executor: &str) -> Result<()> {
     let db = SqliteDB::new()?;
     let user = get_username();
     let command = if command.contains(".") {
-        let current_dir = env::current_dir().unwrap();
-        format!("{}/{}", current_dir.display(), command)
+        let command_split: Vec<&str> = command.split(" ").collect();
+        let script_file = command_split[0];
+        let path = Path::new(script_file);
+        if path.exists() {
+            let current_dir = env::current_dir().unwrap();
+            format!("{}/{}", current_dir.display(), command)
+        } else {
+            println!("{} not exists!", command);
+            return Ok(());
+        }
     } else {
         command.to_string()
     };
