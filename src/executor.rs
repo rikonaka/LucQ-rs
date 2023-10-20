@@ -296,16 +296,23 @@ pub fn list() -> Result<()> {
             String::from("00-00 00:00")
         };
 
-        if r.executor != "null" {
-            println!(
-                "{} | id[{}], add[{}], start[{}], used[{}], command[{}], executor[{}]",
-                status, r.id, add_time_str, start_time_str, used_time, r.command, r.executor
-            )
+        let finish_time_str = if r.finish_time != -1 {
+            let finish_time = DateTime::from_timestamp(r.add_time, 0)
+                .unwrap()
+                .with_timezone(&Local);
+            finish_time.format("%m-%d %H:%M").to_string()
         } else {
-            println!(
-                "{} | id[{}], add[{}], start[{}], used[{}], command[{}]",
-                status, r.id, add_time_str, start_time_str, used_time, r.command
-            )
+            String::from("00-00 00:00")
+        };
+
+        println!(
+            "{} | id[{}], add[{}], start[{}], finish[{}], used[{}]",
+            status, r.id, add_time_str, start_time_str, finish_time_str, used_time,
+        );
+        if r.executor != "null" {
+            println!("  | >>> command[{}], executor[{}]", r.command, r.executor);
+        } else {
+            println!("  | >>> command[{}]", r.command);
         }
     }
     Ok(())
