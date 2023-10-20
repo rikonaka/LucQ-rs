@@ -24,6 +24,14 @@ struct Args {
     #[arg(short, long, value_name = "job", default_value = "null")]
     add: String,
 
+    /// Add one command before <id>
+    #[arg(long, value_name = "id", default_value_t = -1)]
+    before: i32,
+
+    /// Add one command after <id>
+    #[arg(long, value_name = "id", default_value_t = -1)]
+    after: i32,
+
     /// Remove command(s) (example: 1 or 1-5)
     #[arg(short, long, value_name = "id(s)", default_value = "null")]
     remove: String,
@@ -78,7 +86,7 @@ fn main() -> Result<()> {
         clean();
     } else if args.mode == "cli" {
         if args.add != "null" {
-            add(&args.add, &args.executor)?;
+            add(&args.add, &args.executor, args.before, args.after)?;
         } else if args.remove != "null" {
             remove(&args.remove)?;
         } else if args.cancel != "null" {

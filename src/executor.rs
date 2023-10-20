@@ -158,7 +158,7 @@ pub fn clean() {
     println!("Clean database finish!");
 }
 
-pub fn add(command: &str, executor: &str) -> Result<()> {
+pub fn add(command: &str, executor: &str, before: i32, after: i32) -> Result<()> {
     let add_time = Utc::now().timestamp();
     let db = SqliteDB::new()?;
     let user = get_username();
@@ -176,7 +176,29 @@ pub fn add(command: &str, executor: &str) -> Result<()> {
     } else {
         command.to_string()
     };
-    db.insert(&user, &command, &executor, add_time)?;
+    if before == -1 && after == -1 {
+        db.insert(&user, &command, &executor, add_time)?;
+    } else if before != -1 && after == -1 {
+        let commands = db.select_after(before - 1)?;
+        let mut id_vec = Vec::new();
+        for c in commands {
+            id_vec.push(c.id);
+        }
+        println!("aaa");
+        db.move_jobs(id_vec)?;
+        println!("bbb");
+        db.insert_with_id(before, &user, &command, &executor, add_time)?;
+    } else if before == -1 && after != -1 {
+        let commands = db.select_after(after)?;
+        let mut id_vec = Vec::new();
+        for c in commands {
+            id_vec.push(c.id);
+        }
+        db.move_jobs(id_vec)?;
+        db.insert_with_id(after + 1, &user, &command, &executor, add_time)?;
+    } else {
+        println!("Wrong parameters!")
+    }
     Ok(())
 }
 

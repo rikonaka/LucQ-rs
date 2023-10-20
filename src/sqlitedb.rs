@@ -58,6 +58,30 @@ impl SqliteDB {
         )?;
         Ok(())
     }
+    pub fn insert_with_id(
+        &self,
+        id: i32,
+        user: &str,
+        command: &str,
+        executor: &str,
+        add_time: i64,
+    ) -> Result<()> {
+        let cm = Commands {
+            id,
+            user: user.to_string(),
+            command: command.to_string(),
+            executor: executor.to_string(),
+            add_time,
+            status: 0,
+            start_time: -1,
+            finish_time: -1,
+        };
+        self.conn.execute(
+            "INSERT INTO commands (id, user, command, executor, add_time, status, start_time, finish_time) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+            (&cm.id, &cm.user, &cm.command, &cm.executor, &cm.add_time, &cm.status, &cm.start_time, &cm.finish_time),
+        )?;
+        Ok(())
+    }
     pub fn remove_by_id(&self, id: i32) -> Result<()> {
         self.conn
             .execute(&format!("DELETE FROM commands WHERE id={}", id), ())?;
@@ -65,8 +89,35 @@ impl SqliteDB {
     }
     pub fn select_all(&self) -> Result<Vec<Commands>> {
         let mut stmt = self.conn.prepare(
-            "SELECT id, user, command, executor, add_time, status, start_time, finish_time FROM commands",
+            "SELECT id, user, command, executor, add_time, status, start_time, finish_time FROM commands ORDER BY id ASC",
         )?;
+
+        let commands_iter = stmt.query_map([], |row| {
+            Ok(Commands {
+                id: row.get(0)?,
+                user: row.get(1)?,
+                command: row.get(2)?,
+                executor: row.get(3)?,
+                add_time: row.get(4)?,
+                status: row.get(5)?,
+                start_time: row.get(6)?,
+                finish_time: row.get(7)?,
+            })
+        })?;
+
+        let mut ret: Vec<Commands> = Vec::new();
+        for command in commands_iter {
+            match command {
+                Ok(c) => ret.push(c),
+                Err(e) => return Err(e),
+            }
+        }
+
+        Ok(ret)
+    }
+    pub fn select_after(&self, id: i32) -> Result<Vec<Commands>> {
+        let s = format!("SELECT id, user, command, executor, add_time, status, start_time, finish_time FROM commands WHERE id>{} ORDER BY id ASC", id);
+        let mut stmt = self.conn.prepare(&s)?;
 
         let commands_iter = stmt.query_map([], |row| {
             Ok(Commands {
@@ -153,6 +204,13 @@ impl SqliteDB {
             finish_time, id
         );
         self.conn.execute(&stmt, ())?;
+        Ok(())
+    }
+    pub fn move_jobs(&self, id_vec: Vec<i32>) -> Result<()> {
+        for id in id_vec.iter().rev() {
+            let stmt = format!("UPDATE commands SET id={} WHERE id={}", id + 1, id);
+            self.conn.execute(&stmt, ())?;
+        }
         Ok(())
     }
 }
