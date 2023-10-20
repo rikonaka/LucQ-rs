@@ -184,9 +184,7 @@ pub fn add(command: &str, executor: &str, before: i32, after: i32) -> Result<()>
         for c in commands {
             id_vec.push(c.id);
         }
-        println!("aaa");
         db.move_jobs(id_vec)?;
-        println!("bbb");
         db.insert_with_id(before, &user, &command, &executor, add_time)?;
     } else if before == -1 && after != -1 {
         let commands = db.select_after(after)?;
