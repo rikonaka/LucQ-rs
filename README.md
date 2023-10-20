@@ -12,10 +12,13 @@ Usage: lucq [OPTIONS]
 Options:
   -m, --mode <mode>      Run mode (cli or exec) [default: cli]
   -a, --add <job>        Add one command [default: null]
+      --before <id>      Add one command before <id> [default: -1]
+      --after <id>       Add one command after <id> [default: -1]
   -r, --remove <id(s)>   Remove command(s) (example: 1 or 1-5) [default: null]
+  -c, --cancel <id(s)>   Cancel command(s) (keep it in history, example: 1 or 1-5) [default: null]
   -e, --executor <path>  Executor path (example: /usr/bin/python3) [default: null]
   -l, --list             List all commands
-  -c, --clean            Clean database
+      --clean            Clean database
   -h, --help             Print help
   -V, --version          Print version
 ```
