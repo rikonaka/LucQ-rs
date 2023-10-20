@@ -164,7 +164,16 @@ pub fn add(command: &str, executor: &str) -> Result<()> {
     let user = get_username();
     let command = if command.contains(".") {
         let command_split: Vec<&str> = command.split(" ").collect();
-        let script_file = command_split[0];
+        let script_file = if command_split[0].contains("python3")
+            | command_split[0].contains("python")
+            | command_split[0].contains("bash")
+            | command_split[0].contains("zsh")
+            | command_split[0].contains("fish")
+        {
+            command_split[1]
+        } else {
+            command_split[0]
+        };
         let path = Path::new(script_file);
         if path.exists() {
             let current_dir = env::current_dir().unwrap();
