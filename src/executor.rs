@@ -334,15 +334,18 @@ pub fn list() -> Result<()> {
             String::from("00-00 00:00")
         };
 
-        println!(
-            "{} | id[{}], add[{}], start[{}], finish[{}], used[{}]",
-            status, r.id, add_time_str, start_time_str, finish_time_str, used_time,
-        );
         if r.executor != "null" {
-            println!("  | >>> command[{}], executor[{}]", r.command, r.executor);
+            println!(
+                "{} | id[{}], command[{}], executor[{}]",
+                status, r.id, r.command, r.executor,
+            );
         } else {
-            println!("  | >>> command[{}]", r.command);
+            println!("{} | id[{}], command[{}]", status, r.id, r.command,);
         }
+        println!(
+            "  | >>> add[{}], start[{}], finish[{}], used[{}]",
+            add_time_str, start_time_str, finish_time_str, used_time
+        );
     }
     Ok(())
 }
