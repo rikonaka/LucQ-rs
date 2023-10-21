@@ -164,13 +164,26 @@ pub fn add(command: &str, executor: &str, before: i32, after: i32) -> Result<()>
     let user = get_username();
     let command = if command.contains(".") {
         let command_split: Vec<&str> = command.split(" ").collect();
-        let script_file = command_split[0];
+        let (script_file, new_command) = if command_split[0] != "python3"
+            && command_split[0] != "python"
+            && command_split[0] != "bash"
+            && command_split[0] != "zsh"
+            && command_split[0] != "fish"
+        {
+            (command_split[0], command.to_string())
+        } else {
+            if command_split.len() > 0 {
+                (command_split[1], command_split[1..].join(" "))
+            } else {
+                panic!("wrong command: {}", command);
+            }
+        };
         let path = Path::new(script_file);
         if path.exists() {
             let current_dir = env::current_dir().unwrap();
-            format!("{}/{}", current_dir.display(), command)
+            format!("{}/{}", current_dir.display(), new_command)
         } else {
-            println!("{} not exists!", command);
+            println!("[{}] not exists!", script_file);
             return Ok(());
         }
     } else {
