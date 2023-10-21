@@ -326,7 +326,7 @@ pub fn list() -> Result<()> {
         };
 
         let finish_time_str = if r.finish_time != -1 {
-            let finish_time = DateTime::from_timestamp(r.add_time, 0)
+            let finish_time = DateTime::from_timestamp(r.finish_time, 0)
                 .unwrap()
                 .with_timezone(&Local);
             finish_time.format("%m-%d %H:%M").to_string()
