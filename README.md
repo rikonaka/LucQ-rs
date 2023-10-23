@@ -57,13 +57,13 @@ Specify executor
 lucq --add test.py --executor /home/riko/venv/bin/python
 ```
 
-Add command before 3
+Add command before id 3
 
 ```bash
 lucq --add "test.py -a 1" --before 3
 ```
 
-Add command after 3
+Add command after id 3
 
 ```bash
 lucq --add "test.py -a 1" --after 3
