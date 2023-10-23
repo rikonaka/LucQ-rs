@@ -75,12 +75,17 @@ Show progress
 lucq --list
 ```
 
-- `o` means command execute finished
-- `r` means command still running
-- `x` means command not started
-- `e` means command quit with error
-- `c` means command cancel by user
+- 😁 or `o` means command was finished
+- 🥵 or `r` means command is running
+- 😐 or `x` means command is watting
+- 😨 or `e` means command was error
+- 🤡 or `c` means command was canceled
 
+Disable emoji show
+
+```bash
+lucq --list --noemoji
+```
 
 ### Remove command from queue
 

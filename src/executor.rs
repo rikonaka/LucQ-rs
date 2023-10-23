@@ -271,22 +271,41 @@ pub fn cancel(id_str: &str) -> Result<()> {
     Ok(())
 }
 
-pub fn list() -> Result<()> {
+pub fn list(noemoji: bool) -> Result<()> {
     let db = SqliteDB::new()?;
     let rets = db.select_all()?;
-    println!("S | Jobs");
+    // println!("S | Jobs");
     for r in rets {
         // status
-        let status = if r.status == 0 {
-            "x"
-        } else if r.status == 1 {
-            "o"
-        } else if r.status == 2 {
-            "e"
-        } else if r.status == 3 {
-            "c"
+        let status = if noemoji {
+            if r.status == 0 {
+                "x" // waitting
+            } else if r.status == 1 {
+                "o" // finish
+            } else if r.status == 2 {
+                "e" // error
+            } else if r.status == 3 {
+                "c" // cancel
+            } else {
+                "r" // running
+            }
         } else {
-            "r"
+            if r.status == 0 {
+                // "x" // waitting
+                "😐"
+            } else if r.status == 1 {
+                // "o" // finish
+                "😁"
+            } else if r.status == 2 {
+                // "e" // error
+                "😨"
+            } else if r.status == 3 {
+                // "c" // cancel
+                "🤡"
+            } else {
+                // "r" // running
+                "🥵"
+            }
         };
 
         // used time format
@@ -348,15 +367,12 @@ pub fn list() -> Result<()> {
         };
 
         if r.executor != "null" {
-            println!(
-                "{} | id[{}], command[{}], executor[{}]",
-                status, r.id, r.command, r.executor,
-            );
+            println!("{} | {} | {} | {}", status, r.id, r.command, r.executor,);
         } else {
-            println!("{} | id[{}], command[{}]", status, r.id, r.command,);
+            println!("{} | {} | {}", status, r.id, r.command,);
         }
         println!(
-            "  | >>> add[{}], start[{}], finish[{}], used[{}]",
+            ">>>| add({}) | start({}) | finish({}) | used({})",
             add_time_str, start_time_str, finish_time_str, used_time
         );
     }

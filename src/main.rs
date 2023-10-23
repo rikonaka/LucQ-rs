@@ -51,6 +51,10 @@ struct Args {
     /// Clean database
     #[arg(long, action(ArgAction::SetTrue))]
     clean: bool,
+
+    /// Do not use emoji
+    #[arg(long, action(ArgAction::SetTrue))]
+    noemoji: bool,
 }
 
 fn user_quit() -> bool {
@@ -92,7 +96,7 @@ fn main() -> Result<()> {
         } else if args.cancel != "null" {
             cancel(&args.cancel)?;
         } else if args.list {
-            list()?;
+            list(args.noemoji)?;
         }
     } else if args.mode == "exec" {
         println!(">>> Running...");
