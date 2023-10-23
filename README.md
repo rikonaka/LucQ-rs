@@ -19,6 +19,7 @@ Options:
   -e, --executor <path>  Executor path (example: /usr/bin/python3) [default: null]
   -l, --list             List all commands
       --clean            Clean database
+      --noemoji          Do not use emoji
   -h, --help             Print help
   -V, --version          Print version
 ```
