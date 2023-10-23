@@ -279,15 +279,15 @@ pub fn list(noemoji: bool) -> Result<()> {
         // status
         let status = if noemoji {
             if r.status == 0 {
-                "x" // waitting
+                " x" // waitting
             } else if r.status == 1 {
-                "o" // finish
+                " o" // finish
             } else if r.status == 2 {
-                "e" // error
+                " e" // error
             } else if r.status == 3 {
-                "c" // cancel
+                " c" // cancel
             } else {
-                "r" // running
+                " r" // running
             }
         } else {
             if r.status == 0 {
