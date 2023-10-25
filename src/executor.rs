@@ -372,7 +372,7 @@ pub fn list(noemoji: bool) -> Result<()> {
             println!("{} | {} | {}", status, r.id, r.command,);
         }
         println!(
-            ">>>| add({}) | start({}) | finish({}) | used({})",
+            "---| add({}) | start({}) | finish({}) | used({})",
             add_time_str, start_time_str, finish_time_str, used_time
         );
     }
