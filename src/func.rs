@@ -45,7 +45,8 @@ pub fn add(command: &str, executor: &str, before: i32, after: i32) -> Result<()>
             let current_dir = env::current_dir().unwrap();
             format!("{}/{}", current_dir.display(), new_command)
         } else {
-            println!("[{}] not exists!", script_file);
+            println!("Warning!!!");
+            println!("File [{}] not exists!", script_file);
             return Ok(());
         }
     } else {
