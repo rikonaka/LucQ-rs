@@ -1,5 +1,6 @@
 use home::home_dir;
 use rusqlite::{Connection, Result};
+use std::iter::zip;
 
 use crate::SQLITE_DB;
 
@@ -206,11 +207,64 @@ impl SqliteDB {
         self.conn.execute(&stmt, ())?;
         Ok(())
     }
-    pub fn move_jobs(&self, id_vec: Vec<i32>) -> Result<()> {
-        for id in id_vec.iter().rev() {
-            let stmt = format!("UPDATE commands SET id={} WHERE id={}", id + 1, id);
+    fn gen_move_vec(id_vec: &[i32]) -> (Vec<i32>, Vec<i32>) {
+        if id_vec.len() > 0 {
+            let mut id_vec_ret = Vec::new();
+            let id_vec_plus: Vec<i32> = id_vec.iter().map(|x| x + 1).collect();
+            for id in &id_vec_plus {
+                id_vec_ret.push(*id);
+                if !id_vec_plus.contains(&(id + 1)) {
+                    break;
+                }
+            }
+            (id_vec[..id_vec_ret.len()].to_vec(), id_vec_ret)
+        } else {
+            (vec![], vec![])
+        }
+    }
+    pub fn move_jobs(&self, id_vec: &[i32]) -> Result<()> {
+        let (id_vec_1, id_vec_2) = SqliteDB::gen_move_vec(id_vec);
+        for (id, new_id) in zip(id_vec_1.iter().rev(), id_vec_2.iter().rev()) {
+            let stmt = format!("UPDATE commands SET id={} WHERE id={}", new_id, id);
             self.conn.execute(&stmt, ())?;
         }
         Ok(())
+    }
+    fn gen_align_vec(id_vec: &[i32]) -> (Vec<i32>, Vec<i32>) {
+        let mut new_id_vec: Vec<i32> = Vec::new();
+        for i in 0..id_vec.len() {
+            new_id_vec.push(i as i32 + 1);
+        }
+        let mut same_len = 0;
+        for i in 0..id_vec.len() {
+            if id_vec[i] != new_id_vec[i] {
+                same_len = i;
+                break;
+            }
+        }
+        (
+            id_vec[same_len..id_vec.len()].to_vec(),
+            new_id_vec[same_len..id_vec.len()].to_vec(),
+        )
+    }
+    pub fn align_id(&self, id_vec: &[i32]) -> Result<()> {
+        let (id_vec_1, id_vec_2) = SqliteDB::gen_align_vec(id_vec);
+        for (id, new_id) in zip(id_vec_1, id_vec_2) {
+            let stmt = format!("UPDATE commands SET id={} WHERE id={}", new_id, id);
+            self.conn.execute(&stmt, ())?;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_move_jobs() {
+        let id_vec = vec![7, 8, 10, 12];
+        let (id_vec_1, id_vec_2) = SqliteDB::gen_move_vec(&id_vec);
+        println!("{:?}", id_vec_1);
+        println!("{:?}", id_vec_2);
     }
 }

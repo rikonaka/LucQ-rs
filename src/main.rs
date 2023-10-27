@@ -6,8 +6,9 @@ use std::sync::Mutex;
 use std::{thread, time};
 
 pub mod executor;
+pub mod func;
 pub mod sqlitedb;
-use executor::{add, cancel, clean, exec, list, remove};
+use func::{add, align, cancel, clean, exec, list, remove};
 
 static SQLITE_DB: &str = "lucq.sql";
 static USER_QUIT_OP: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
@@ -52,6 +53,10 @@ struct Args {
     #[arg(long, action(ArgAction::SetTrue))]
     clean: bool,
 
+    /// Align database
+    #[arg(long, action(ArgAction::SetTrue))]
+    align: bool,
+
     /// Do not use emoji
     #[arg(long, action(ArgAction::SetTrue))]
     noemoji: bool,
@@ -87,7 +92,7 @@ fn main() -> Result<()> {
 
     let args = Args::parse();
     if args.clean {
-        clean();
+        clean()?;
     } else if args.mode == "cli" {
         if args.add != "null" {
             add(&args.add, &args.executor, args.before, args.after)?;
@@ -97,6 +102,8 @@ fn main() -> Result<()> {
             cancel(&args.cancel)?;
         } else if args.list {
             list(args.noemoji)?;
+        } else if args.align {
+            align()?;
         }
     } else if args.mode == "exec" {
         println!(">>> Running...");
