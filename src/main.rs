@@ -8,7 +8,7 @@ use std::{thread, time};
 pub mod executor;
 pub mod func;
 pub mod sqlitedb;
-use func::{add, align, cancel, clean, exec, list, remove};
+use func::{add, align, cancel, clean, exec, grep, list, remove};
 
 static SQLITE_DB: &str = "lucq.sql";
 static USER_QUIT_OP: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
@@ -37,20 +37,24 @@ struct Args {
     #[arg(short, long, value_name = "id(s)", default_value = "null")]
     remove: String,
 
-    /// Cancel command(s) (keep it in history, example: 1 or 1-5)
-    #[arg(short, long, value_name = "id(s)", default_value = "null")]
+    /// Cancel command(s) (keep it in history but not run, example: 1 or 1-5)
+    #[arg(long, value_name = "id(s)", default_value = "null")]
     cancel: String,
 
     /// Executor path (example: /usr/bin/python3)
     #[arg(short, long, value_name = "path", default_value = "null")]
     executor: String,
 
+    /// Search and show
+    #[arg(short, long, value_name = "name", default_value = "null")]
+    grep: String,
+
     /// List all commands
     #[arg(short, long, action(ArgAction::SetTrue))]
     list: bool,
 
     /// Clean database
-    #[arg(long, action(ArgAction::SetTrue))]
+    #[arg(short, long, action(ArgAction::SetTrue))]
     clean: bool,
 
     /// Align database
@@ -100,6 +104,8 @@ fn main() -> Result<()> {
             remove(&args.remove)?;
         } else if args.cancel != "null" {
             cancel(&args.cancel)?;
+        } else if args.grep != "null" {
+            grep(&args.grep, args.noemoji)?;
         } else if args.list {
             list(args.noemoji)?;
         } else if args.align {

@@ -171,6 +171,33 @@ impl SqliteDB {
 
         Ok(ret)
     }
+    pub fn select_grep(&self, name: &str) -> Result<Vec<Commands>> {
+        let s = format!("SELECT id, user, command, executor, add_time, status, start_time, finish_time FROM commands WHERE command LIKE '%{}%' ORDER BY id ASC LIMIT 1", name);
+        let mut stmt = self.conn.prepare(&s)?;
+
+        let commands_iter = stmt.query_map([], |row| {
+            Ok(Commands {
+                id: row.get(0)?,
+                user: row.get(1)?,
+                command: row.get(2)?,
+                executor: row.get(3)?,
+                add_time: row.get(4)?,
+                status: row.get(5)?,
+                start_time: row.get(7)?,
+                finish_time: row.get(6)?,
+            })
+        })?;
+
+        let mut ret: Vec<Commands> = Vec::new();
+        for command in commands_iter {
+            match command {
+                Ok(c) => ret.push(c),
+                Err(e) => return Err(e),
+            }
+        }
+
+        Ok(ret)
+    }
     pub fn update_status_running(&self, id: i32) -> Result<()> {
         let stmt = format!("UPDATE commands SET status=9 WHERE id={}", id);
         self.conn.execute(&stmt, ())?;

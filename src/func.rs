@@ -8,6 +8,7 @@ use std::process::Command;
 use std::{thread, time};
 
 use crate::executor::{Executor, ExecutorExitCode};
+use crate::sqlitedb::Commands;
 use crate::sqlitedb::SqliteDB;
 use crate::SQLITE_DB;
 use crate::USER_QUIT_OP;
@@ -134,10 +135,7 @@ pub fn cancel(id_str: &str) -> Result<()> {
     Ok(())
 }
 
-pub fn list(noemoji: bool) -> Result<()> {
-    let db = SqliteDB::new()?;
-    let rets = db.select_all()?;
-    // println!("S | Jobs");
+fn commands_show(rets: Vec<Commands>, noemoji: bool) {
     for r in rets {
         // status
         let status = if noemoji {
@@ -239,6 +237,13 @@ pub fn list(noemoji: bool) -> Result<()> {
             add_time_str, start_time_str, finish_time_str, used_time
         );
     }
+}
+
+pub fn list(noemoji: bool) -> Result<()> {
+    let db = SqliteDB::new()?;
+    let rets = db.select_all()?;
+    // println!("S | Jobs");
+    commands_show(rets, noemoji);
     Ok(())
 }
 
@@ -299,5 +304,12 @@ pub fn align() -> Result<()> {
         id_vec.push(r.id);
     }
     db.align_id(&id_vec)?;
+    Ok(())
+}
+
+pub fn grep(name: &str, noemoji: bool) -> Result<()> {
+    let db = SqliteDB::new()?;
+    let rets = db.select_grep(name)?;
+    commands_show(rets, noemoji);
     Ok(())
 }
