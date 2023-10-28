@@ -78,7 +78,7 @@ Show progress
 lucq --list
 ```
 
-- 😐 or `x` means command is watting
+- 😐 or `x` means command is waiting
 - 😁 or `o` means command was finished
 - 🥵 or `r` means command is running
 - 😨 or `e` means command was error
