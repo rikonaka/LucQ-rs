@@ -7,7 +7,7 @@ Linux user command queue, help Linux users execute commands (only `Linux`) or co
 ```bash
 Linux user command queue
 
-Usage: lucqq [OPTIONS]
+Usage: lucq [OPTIONS]
 
 Options:
   -m, --mode <mode>      Run mode (cli or exec) [default: cli]
