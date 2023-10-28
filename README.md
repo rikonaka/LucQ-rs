@@ -90,12 +90,18 @@ Disable emoji show
 lucq --list --noemoji
 ```
 
-### Remove command from queue
+### Delete command from queue
 
 Use `--list` to find out command id (example 9) then
 
 ```bash
-lucq --remove 9
+lucq --delete 9
+```
+
+### Search
+
+```bash
+lucq --grep test.py
 ```
 
 ### Clean database
