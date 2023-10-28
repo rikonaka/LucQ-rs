@@ -8,7 +8,7 @@ use std::{thread, time};
 pub mod executor;
 pub mod func;
 pub mod sqlitedb;
-use func::{add, align, cancel, clean, exec, grep, list, remove};
+use func::{add, align, cancel, clean, delete, exec, grep, list};
 
 static SQLITE_DB: &str = "lucq.sql";
 static USER_QUIT_OP: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
@@ -33,9 +33,9 @@ struct Args {
     #[arg(long, value_name = "id", default_value_t = -1)]
     after: i32,
 
-    /// Remove command(s) (example: 1 or 1-5)
+    /// Delete command(s) (example: 1 or 1-5)
     #[arg(short, long, value_name = "id(s)", default_value = "null")]
-    remove: String,
+    delete: String,
 
     /// Cancel command(s) (keep it in history but not run, example: 1 or 1-5)
     #[arg(long, value_name = "id(s)", default_value = "null")]
@@ -100,8 +100,8 @@ fn main() -> Result<()> {
     } else if args.mode == "cli" {
         if args.add != "null" {
             add(&args.add, &args.executor, args.before, args.after)?;
-        } else if args.remove != "null" {
-            remove(&args.remove)?;
+        } else if args.delete != "null" {
+            delete(&args.delete)?;
         } else if args.cancel != "null" {
             cancel(&args.cancel)?;
         } else if args.grep != "null" {

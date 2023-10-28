@@ -14,7 +14,7 @@ Options:
   -a, --add <job>        Add one command [default: null]
       --before <id>      Add one command before <id> [default: -1]
       --after <id>       Add one command after <id> [default: -1]
-  -r, --remove <id(s)>   Remove command(s) (example: 1 or 1-5) [default: null]
+  -d, --delete <id(s)>   Delete command(s) (example: 1 or 1-5) [default: null]
       --cancel <id(s)>   Cancel command(s) (keep it in history but not run, example: 1 or 1-5) [default: null]
   -e, --executor <path>  Executor path (example: /usr/bin/python3) [default: null]
   -g, --grep <name>      Search and show [default: null]

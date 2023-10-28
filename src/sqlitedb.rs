@@ -172,7 +172,7 @@ impl SqliteDB {
         Ok(ret)
     }
     pub fn select_grep(&self, name: &str) -> Result<Vec<Commands>> {
-        let s = format!("SELECT id, user, command, executor, add_time, status, start_time, finish_time FROM commands WHERE command LIKE '%{}%' ORDER BY id ASC LIMIT 1", name);
+        let s = format!("SELECT id, user, command, executor, add_time, status, start_time, finish_time FROM commands WHERE command LIKE '%{}%' ORDER BY id ASC", name);
         let mut stmt = self.conn.prepare(&s)?;
 
         let commands_iter = stmt.query_map([], |row| {

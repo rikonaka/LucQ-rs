@@ -77,7 +77,7 @@ pub fn add(command: &str, executor: &str, before: i32, after: i32) -> Result<()>
     Ok(())
 }
 
-pub fn remove(id_str: &str) -> Result<()> {
+pub fn delete(id_str: &str) -> Result<()> {
     let db = SqliteDB::new()?;
     let mut success = true;
     if id_str.contains("-") {
