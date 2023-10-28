@@ -7,7 +7,7 @@ Linux user command queue, help Linux users execute commands (only `Linux`) or co
 ```bash
 Linux user command queue
 
-Usage: lucq [OPTIONS]
+Usage: lucqq [OPTIONS]
 
 Options:
   -m, --mode <mode>      Run mode (cli or exec) [default: cli]
@@ -15,10 +15,12 @@ Options:
       --before <id>      Add one command before <id> [default: -1]
       --after <id>       Add one command after <id> [default: -1]
   -r, --remove <id(s)>   Remove command(s) (example: 1 or 1-5) [default: null]
-  -c, --cancel <id(s)>   Cancel command(s) (keep it in history, example: 1 or 1-5) [default: null]
+      --cancel <id(s)>   Cancel command(s) (keep it in history but not run, example: 1 or 1-5) [default: null]
   -e, --executor <path>  Executor path (example: /usr/bin/python3) [default: null]
+  -g, --grep <name>      Search and show [default: null]
   -l, --list             List all commands
-      --clean            Clean database
+  -c, --clean            Clean database
+      --align            Align database
       --noemoji          Do not use emoji
   -h, --help             Print help
   -V, --version          Print version
